@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.vite/
+*.local
+.DS_Store
+campus/.openai/source-workflow.json
+.env
+.env.*
+!.env.example
+coverage/
+*.tsbuildinfo
+*.log
+.artifacts/

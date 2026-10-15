@@ -1,0 +1,28 @@
+# One same-origin Node service. Create the database separately in Neon.
+services:
+  - type: web
+    name: uniboard
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/v1/health/ready
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: NODE_ENV
+        value: production
+      - key: VITE_DATA_MODE
+        value: api
+      - key: SERVE_FRONTEND
+        value: 1
+      - key: TRUST_PROXY
+        value: 1
+      - key: DATABASE_URL
+        sync: false
+      - key: APP_ORIGIN
+        sync: false
+      - key: EMAIL_WEBHOOK_URL
+        sync: false
+      - key: EMAIL_WEBHOOK_TOKEN
+        sync: false

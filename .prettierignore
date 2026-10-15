@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.artifacts/
+.openai/
+package-lock.json
+coverage/
+*.tsbuildinfo

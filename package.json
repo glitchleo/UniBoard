@@ -1,0 +1,32 @@
+{
+  "name": "uniboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A documented digital campus noticeboard learning project",
+  "workspaces": [
+    "campus",
+    "server"
+  ],
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n web,api -c green,blue \"npm run dev -w campus\" \"npm run dev -w server\"",
+    "dev:web": "npm run dev -w campus",
+    "dev:api": "npm run dev -w server",
+    "build": "npm run build --workspaces",
+    "check": "npm run check -w campus && npm run build -w server",
+    "test": "npm run test --workspaces --if-present",
+    "start": "npm run start -w server",
+    "preview": "npm run preview -w campus",
+    "db:migrate": "npm run db:migrate -w server",
+    "db:seed": "npm run db:seed -w server",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prettier": "^3.6.2"
+  }
+}

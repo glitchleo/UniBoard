@@ -1,0 +1,430 @@
+/* Account dialog frame and heading. */
+.account-dialog.modal {
+  width: min(100%, 540px);
+  padding: 24px;
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  position: relative;
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: none;
+}
+.account-close {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+}
+.account-heading {
+  padding: 0 28px 20px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.account-symbol {
+  width: 40px;
+  height: 40px;
+  background: #eef4ff;
+  color: var(--green);
+  border: 1px solid #d5e3fb;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  margin: 0 0 12px;
+}
+.account-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  margin: 0 0 6px;
+  color: var(--muted);
+}
+.account-heading h2 {
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.15;
+  margin: 0 0 11px;
+}
+.account-intro {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+/* Shared profile, membership, and authentication form fields. */
+.account-form,
+.account-form > form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.account-profile-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  padding: 15px;
+  border-radius: 4px;
+  background: #f3f4f6;
+  margin-bottom: 3px;
+}
+.account-avatar {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #e4edfb;
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+}
+.account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.account-profile-preview strong {
+  font-size: 13px;
+  display: block;
+}
+.account-profile-preview span:not(.account-student-tag) {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+.account-student-tag {
+  margin-left: auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--green);
+  border-radius: 4px;
+  padding: 5px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.account-field-pair {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 13px;
+}
+.account-form .field {
+  position: relative;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.account-form .field > input,
+.account-form .field > select,
+.account-form .field > textarea {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 9px 10px;
+}
+.account-form .field > input::placeholder,
+.account-form .field > textarea::placeholder {
+  color: #7b8594;
+}
+.account-form .field > input:focus,
+.account-form .field > select:focus,
+.account-form .field > textarea:focus {
+  border-color: var(--green);
+  outline: 2px solid #bfd4f8;
+  outline-offset: 1px;
+}
+.account-form .field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.account-optional {
+  font-weight: 400;
+  color: #667085;
+  font-size: 13px;
+  margin-left: 4px;
+}
+.account-character-count {
+  align-self: flex-end;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  margin-top: -3px;
+}
+.account-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  margin-top: 3px;
+}
+.account-signout {
+  border: 0;
+  background: none;
+  font-size: 13px;
+  color: #a3554e;
+  cursor: pointer;
+  padding: 8px 0;
+}
+.account-preview-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  border: 1px solid #d5e3fb;
+  border-radius: 4px;
+  background: #eef4ff;
+  color: #265eaa;
+  padding: 11px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+.account-preview-note svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+/* University membership selection. */
+.account-universities {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.account-university {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px;
+  cursor: pointer;
+}
+.account-university:hover {
+  background: #f3f4f6;
+}
+.account-university.is-selected {
+  border-color: #3f80ed;
+  background: #eef4ff;
+}
+.account-university input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.account-university:has(input:focus-visible) {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+.account-university-mark {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--green);
+  border: 1px solid #d5dce5;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+.account-university strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+.account-university small {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 5px;
+}
+.account-radio {
+  width: 17px;
+  height: 17px;
+  margin-left: auto;
+  flex-shrink: 0;
+  border: 1px solid #aeb9c7;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: transparent;
+  background: #fff;
+}
+.is-selected .account-radio {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+.account-email-hint {
+  margin: -7px 0 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.account-email-hint svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.account-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  cursor: pointer;
+}
+.account-confirm input {
+  margin-top: 2px;
+  accent-color: var(--green);
+}
+.account-confirm strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.account-full-button {
+  width: 100%;
+  justify-content: center;
+  min-height: 42px;
+}
+.account-manual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 0;
+  background: none;
+  color: var(--green);
+  font-size: 13px;
+  line-height: 1.6;
+  cursor: pointer;
+  padding: 0 8px;
+}
+.account-manual:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.account-fineprint {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #667085;
+  margin: 0;
+}
+/* Feedback and sign-in navigation. */
+.account-message {
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 12px;
+  background: #f3f4f6;
+  border: 1px solid #d5dce5;
+  border-radius: 4px;
+  margin: 0;
+  color: #25364a;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  overflow-wrap: anywhere;
+}
+.account-message[role='alert'] {
+  background: #fff5f4;
+  border-color: #f3c8c4;
+  color: #b42318;
+}
+.account-message:has(code) {
+  display: block;
+}
+.account-message:has(code) p,
+.account-message:has(code) code {
+  margin-top: 8px;
+}
+.account-message svg {
+  flex-shrink: 0;
+}
+.account-auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #f3f4f6;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px;
+  margin-bottom: 2px;
+}
+.account-auth-tabs button {
+  border: 1px solid transparent;
+  min-height: 35px;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+.account-auth-tabs button.is-active {
+  background: #fff;
+  color: #265eaa;
+  border-color: var(--border);
+}
+.account-reset-info {
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
+  color: var(--muted);
+}
+.account-dialog--signin {
+  max-width: 460px;
+}
+.account-dialog--university .account-heading {
+  padding-bottom: 20px;
+}
+.account-dialog button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.account-dialog button:focus-visible,
+.account-confirm input:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+@media (max-width: 560px) {
+  .account-dialog.modal {
+    padding: 20px 16px;
+    max-height: calc(100dvh - 20px);
+  }
+  .account-heading h2 {
+    font-size: 24px;
+  }
+  .account-field-pair {
+    grid-template-columns: 1fr;
+  }
+  .account-student-tag {
+    display: none;
+  }
+  .account-profile-preview {
+    padding: 12px;
+  }
+  .account-university strong {
+    font-size: 13px;
+  }
+  .account-university {
+    padding: 11px 9px;
+  }
+}
