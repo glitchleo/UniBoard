@@ -2,20 +2,12 @@ import { useState } from 'react';
 import {
   ArrowUpRight,
   Bell,
-  BookOpen,
   Check,
   CheckCheck,
   ChevronDown,
-  CircleDot,
-  Code2,
-  Database,
   Flag,
-  FolderTree,
-  GraduationCap,
-  Layers,
   Search,
   ShieldCheck,
-  Sprout,
   Users,
 } from 'lucide-react';
 import type { Board } from '../features/board/useBoard';
@@ -206,7 +198,7 @@ export function NotificationsPage({
       <p className="preview-note">
         {apiMode
           ? 'Notifications are loaded from your account. Open a notification to see the related post when campus access permits.'
-          : 'These are sample notifications stored in your browser. Shared activity uses the Express API.'}
+          : 'These are sample notifications stored in your browser.'}
       </p>
     </>
   );
@@ -223,8 +215,8 @@ export function ModerationPage({ board, onOpen }: { board: Board; onOpen: (id: s
       <div className="inline-note">
         <ShieldCheck size={20} />
         <p>
-          This is a local moderation preview. Production moderator permissions are enforced by
-          university membership in the Express API. No live reports or accounts are accessible here.
+          This demo uses sample reports stored in your browser. Actions here do not affect real
+          reports or accounts.
         </p>
       </div>
       <div className="section-topline">
@@ -265,131 +257,6 @@ export function ModerationPage({ board, onOpen }: { board: Board; onOpen: (id: s
           <p>Reports submitted through a post appear here for the demo.</p>
         </div>
       )}
-    </>
-  );
-}
-
-export function GuidePage({ apiMode = false }: { apiMode?: boolean }) {
-  return (
-    <>
-      <PageHeading
-        eyebrow="BUILT TO BE UNDERSTOOD"
-        title="Project guide"
-        description="Architecture, folder structure, and development documentation."
-      />
-      <div className="guide-intro">
-        <span className="guide-logo">
-          <GraduationCap size={26} />
-        </span>
-        <div>
-          <h2>One project. Two applications.</h2>
-          <p>
-            A React interface and an Express API, with PostgreSQL keeping shared campus data in one
-            place. Each piece has a clear job.
-          </p>
-        </div>
-      </div>
-      <div className="architecture-flow">
-        <div>
-          <Code2 size={24} />
-          <strong>React + Vite</strong>
-          <span>The student interface</span>
-          <code>campus/</code>
-        </div>
-        <span className="flow-arrow">→</span>
-        <div>
-          <Layers size={24} />
-          <strong>Express + Node.js</strong>
-          <span>Rules and permissions</span>
-          <code>server/src/</code>
-        </div>
-        <span className="flow-arrow">→</span>
-        <div>
-          <Database size={24} />
-          <strong>PostgreSQL</strong>
-          <span>Shared, durable data</span>
-          <code>server/migrations/</code>
-        </div>
-      </div>
-      <div className="inline-note">
-        <CircleDot size={20} />
-        <p>
-          {apiMode
-            ? 'You are using the Express API. Accounts and campus content are stored in PostgreSQL; permissions come from your server session and university membership.'
-            : 'You are viewing the browser demo. Set VITE_DATA_MODE=api in campus/.env and configure server/.env to use real accounts and shared PostgreSQL data. See README.md for setup.'}
-        </p>
-      </div>
-      <h2 className="guide-heading">
-        <FolderTree size={18} />
-        Where things live
-      </h2>
-      <div className="folder-guide">
-        {[
-          [
-            'campus/src/components/',
-            'Reusable interface pieces: post cards, navigation, and accessible dialogs.',
-          ],
-          [
-            'campus/src/pages/',
-            'The feed, clubs directory, notifications, and moderation preview.',
-          ],
-          ['campus/src/features/board/', 'Board state, actions, and pure search/filter functions.'],
-          ['campus/src/lib/', 'Small adapters, including guarded browser storage.'],
-          ['server/src/routes/', 'Versioned API endpoints for identity and campus activity.'],
-          ['server/src/', 'Validation, permissions, session security, and database helpers.'],
-          ['server/migrations/', 'Versioned SQL definitions and relational constraints.'],
-          ['docs/', 'The architecture, setup, deployment, and development roadmap.'],
-        ].map(([folder, explanation]) => (
-          <div key={folder}>
-            <code>{folder}</code>
-            <p>{explanation}</p>
-          </div>
-        ))}
-      </div>
-      <h2 className="guide-heading">
-        <BookOpen size={18} />
-        Keep exploring
-      </h2>
-      <div className="reading-list">
-        {[
-          [
-            'README.md',
-            'Start here',
-            'Setup commands, stack choices, and an honest implementation overview.',
-          ],
-          [
-            'docs/architecture.md',
-            'Understand the system',
-            'Request flows, database relationships, module boundaries, and design decisions.',
-          ],
-          [
-            'docs/development.md',
-            'Make your first change',
-            'Local workflow, conventions, verification, and a repeatable feature process.',
-          ],
-          [
-            'docs/deployment.md',
-            'Put it on a server',
-            'Render + Neon, environment variables, database migrations, and free tier limits.',
-          ],
-          [
-            'docs/product-roadmap.md',
-            'Know what comes next',
-            'MVP acceptance criteria, roles, and the path from demo to shared campus.',
-          ],
-        ].map(([path, title, body]) => (
-          <article key={path}>
-            <span>
-              <Sprout size={17} />
-            </span>
-            <div>
-              <h3>{title}</h3>
-              <p>{body}</p>
-              <code>{path}</code>
-            </div>
-          </article>
-        ))}
-      </div>
     </>
   );
 }

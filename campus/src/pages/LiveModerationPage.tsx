@@ -221,7 +221,7 @@ export function LiveModerationPage({
         </p>
       )}
 
-      <h2 className="guide-heading">
+      <h2 className="section-heading">
         <Flag size={18} />
         Pending reports
       </h2>
@@ -359,7 +359,7 @@ export function LiveModerationPage({
         </div>
       )}
 
-      <h2 className="guide-heading">
+      <h2 className="section-heading">
         <Users size={18} />
         Membership requests
       </h2>
@@ -431,7 +431,7 @@ export function LiveModerationPage({
         </div>
       )}
 
-      <h2 className="guide-heading">
+      <h2 className="section-heading">
         <ShieldCheck size={18} />
         Recent audit history
       </h2>

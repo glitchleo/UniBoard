@@ -1,9 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import {
-  ArrowUpRight,
   Bell,
   Bookmark,
-  BookOpen,
   ChevronDown,
   LayoutGrid,
   MessageSquareText,
@@ -43,7 +41,7 @@ export function Sidebar({
   return (
     <>
       {open && <button className="sidebar-shade" onClick={onClose} aria-label="Close navigation" />}
-      <aside className={`sidebar ${open ? 'is-open' : ''}`}>
+      <aside id="campus-navigation" className={`sidebar ${open ? 'is-open' : ''}`}>
         <div className="brand-row">
           <NavLink to="/" className="brand" onClick={onClose}>
             UniBoard
@@ -117,11 +115,6 @@ export function Sidebar({
           </NavLink>
         </nav>
         <div className="sidebar-bottom">
-          <NavLink className="utility-link" to="/guide" onClick={onClose}>
-            <BookOpen size={15} />
-            Project guide
-            <ArrowUpRight size={13} />
-          </NavLink>
           {(!apiMode || role === 'moderator' || role === 'admin') && (
             <NavLink className="utility-link" to="/moderation" onClick={onClose}>
               <ShieldCheck size={15} />

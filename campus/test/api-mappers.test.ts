@@ -225,6 +225,119 @@ test('API transport retains structured validation feedback', async () => {
   }
 });
 
+test('API transport rejects malformed success envelopes with a consistent error', async () => {
+  const originalFetch = globalThis.fetch;
+  const invalidPayloads = [
+    null,
+    true,
+    42,
+    'ok',
+    [],
+    {},
+    { data: [], meta: [] },
+    { data: [], meta: { page: 1, limit: 0 } },
+    { data: [], meta: { page: 1, limit: 100, total: -1 } },
+    { data: [], developmentToken: 42 },
+    { data: [], message: {} },
+  ];
+  try {
+    for (const payload of invalidPayloads) {
+      globalThis.fetch = async () => new Response(JSON.stringify(payload));
+      await assert.rejects(
+        apiRequest('/test'),
+        (error) =>
+          error instanceof ApiRequestError &&
+          error.status === 200 &&
+          error.code === 'INVALID_RESPONSE',
+        `Payload: ${JSON.stringify(payload)}`,
+      );
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('API transport preserves valid response metadata and optional messages', async () => {
+  const originalFetch = globalThis.fetch;
+  const payload = {
+    data: [],
+    meta: { page: 1, limit: 100, total: 0 },
+    developmentToken: 'development-only-token',
+    message: 'Check your email.',
+  };
+  globalThis.fetch = async () => new Response(JSON.stringify(payload));
+  try {
+    assert.deepEqual(await apiRequest('/test'), payload);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('API transport falls back safely for malformed error payloads', async () => {
+  const originalFetch = globalThis.fetch;
+  const invalidPayloads = [
+    null,
+    true,
+    'failed',
+    [],
+    { error: null },
+    { error: { code: {}, message: [], details: {} } },
+    { error: { code: '', message: '', details: [null, false, { message: {} }] } },
+  ];
+  try {
+    for (const payload of invalidPayloads) {
+      globalThis.fetch = async () => new Response(JSON.stringify(payload), { status: 502 });
+      await assert.rejects(
+        apiRequest('/test'),
+        (error) =>
+          error instanceof ApiRequestError &&
+          error.status === 502 &&
+          error.code === 'REQUEST_FAILED' &&
+          error.message === 'The server returned 502. Please try again.',
+        `Payload: ${JSON.stringify(payload)}`,
+      );
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('API transport retains useful feedback when some validation details are malformed', async () => {
+  const originalFetch = globalThis.fetch;
+  let details: unknown = 'unexpected text';
+  globalThis.fetch = async () =>
+    new Response(
+      JSON.stringify({
+        error: { code: 'VALIDATION_ERROR', message: 'Check the form.', details },
+      }),
+      { status: 400 },
+    );
+  try {
+    await assert.rejects(
+      apiRequest('/test'),
+      (error) =>
+        error instanceof ApiRequestError &&
+        error.code === 'VALIDATION_ERROR' &&
+        error.message === 'Check the form.',
+    );
+    details = [
+      null,
+      { message: {} },
+      { path: ['details', 'places'], message: 'At least one place.' },
+      { path: {}, message: 'Choose a faculty.' },
+    ];
+    await assert.rejects(
+      apiRequest('/test'),
+      (error) =>
+        error instanceof ApiRequestError &&
+        error.code === 'VALIDATION_ERROR' &&
+        error.message === 'details.places: At least one place. Field: Choose a faculty.',
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('API transport handles 204 and sends same-origin JSON requests', async () => {
   const originalFetch = globalThis.fetch;
   let requestOptions: RequestInit | undefined;

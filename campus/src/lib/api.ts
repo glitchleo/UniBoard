@@ -17,6 +17,29 @@ export class ApiRequestError extends Error {
   }
 }
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value);
+const isPositiveInteger = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
+
+/** Validate the shared envelope; each caller still owns its endpoint's data contract. */
+function isApiResponse(value: unknown): value is ApiResponse<unknown> {
+  if (!isRecord(value) || !Object.hasOwn(value, 'data')) return false;
+  if (value.message !== undefined && typeof value.message !== 'string') return false;
+  if (value.developmentToken !== undefined && typeof value.developmentToken !== 'string')
+    return false;
+  if (value.meta === undefined) return true;
+  return (
+    isRecord(value.meta) &&
+    isPositiveInteger(value.meta.page) &&
+    isPositiveInteger(value.meta.limit) &&
+    (value.meta.total === undefined ||
+      (typeof value.meta.total === 'number' &&
+        Number.isSafeInteger(value.meta.total) &&
+        value.meta.total >= 0))
+  );
+}
+
 /** Cookies remain HttpOnly. Requests use the same-origin Vite proxy or Express host. */
 export async function apiRequest<T>(
   path: string,
@@ -44,31 +67,32 @@ export async function apiRequest<T>(
     );
   }
   if (response.status === 204) return { data: undefined as T };
-  const payload = (await response.json().catch(() => null)) as {
-    data?: T;
-    meta?: ApiResponse<T>['meta'];
-    developmentToken?: string;
-    message?: string;
-    error?: {
-      code?: string;
-      message?: string;
-      details?: { path?: (string | number)[]; message?: string }[];
-    };
-  } | null;
+  const payload: unknown = await response.json().catch(() => null);
   if (!response.ok) {
-    const issues = payload?.error?.details
-      ?.slice(0, 3)
-      .map((issue) => `${issue.path?.join('.') || 'Field'}: ${issue.message}`)
+    const error = isRecord(payload) && isRecord(payload.error) ? payload.error : undefined;
+    const details: unknown[] = Array.isArray(error?.details) ? error.details : [];
+    const issues = details
+      .filter(isRecord)
+      .filter((issue) => typeof issue.message === 'string' && issue.message.trim())
+      .slice(0, 3)
+      .map((issue) => {
+        const path =
+          Array.isArray(issue.path) &&
+          issue.path.every((part) => typeof part === 'string' || typeof part === 'number')
+            ? issue.path.join('.')
+            : '';
+        return `${path || 'Field'}: ${issue.message}`;
+      })
       .join(' ');
     throw new ApiRequestError(
       response.status,
-      payload?.error?.code ?? 'REQUEST_FAILED',
+      typeof error?.code === 'string' && error.code.trim() ? error.code : 'REQUEST_FAILED',
       issues ||
-        payload?.error?.message ||
+        (typeof error?.message === 'string' && error.message.trim() ? error.message : '') ||
         `The server returned ${response.status}. Please try again.`,
     );
   }
-  if (!payload || !('data' in payload))
+  if (!isApiResponse(payload))
     throw new ApiRequestError(
       response.status,
       'INVALID_RESPONSE',

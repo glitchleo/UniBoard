@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Check, GraduationCap, Menu, Plus, Search, X } from 'lucide-react';
 import { Sidebar } from './components/Sidebar';
@@ -10,7 +10,7 @@ import Composer from './components/Composer';
 import PostDetail from './components/PostDetail';
 import { ReportDialog } from './components/ReportDialog';
 import { BoardPage } from './pages/BoardPage';
-import { ClubsPage, GuidePage, ModerationPage, NotificationsPage } from './pages/CommunityPages';
+import { ClubsPage, ModerationPage, NotificationsPage } from './pages/CommunityPages';
 import { useBoard } from './features/board/useBoard';
 import { useApiBoard } from './features/board/useApiBoard';
 import { LiveModerationPage } from './pages/LiveModerationPage';
@@ -31,8 +31,7 @@ const pageNames: Record<string, string> = {
   '/dashboard': 'My dashboard',
   '/clubs': 'Clubs & communities',
   '/notifications': 'Notifications',
-  '/moderation': 'Moderation demo',
-  '/guide': 'Project guide',
+  '/moderation': 'Moderation',
 };
 
 function CampusApp() {
@@ -47,6 +46,7 @@ function CampusApp() {
   const [account, setAccount] = useState<'profile' | 'university' | 'signin' | null>(null);
   const [composer, setComposer] = useState<{ post?: Post } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const openPostRequest = useRef(0);
   const [reportTarget, setReportTarget] = useState<{
     kind: 'post' | 'comment' | 'user';
     id: string;
@@ -56,14 +56,23 @@ function CampusApp() {
   const reported = reportTarget;
   useEffect(() => {
     setFilters(initialFilters);
-    setSelectedId(null);
     setComposer(null);
     setReportTarget(null);
   }, [board.profile.university, board.signedIn]);
+  useEffect(() => {
+    openPostRequest.current += 1;
+    setSelectedId(null);
+    return () => {
+      openPostRequest.current += 1;
+    };
+  }, [pathname, board.profile.university, board.signedIn]);
   const unreadCount = board.notifications.filter((n) => !n.read).length;
   const closeAccount = useCallback(() => setAccount(null), []);
   const closeComposer = useCallback(() => setComposer(null), []);
-  const closeDetail = useCallback(() => setSelectedId(null), []);
+  const closeDetail = useCallback(() => {
+    openPostRequest.current += 1;
+    setSelectedId(null);
+  }, []);
   const guarded = (action: () => void) => {
     if (board.signedIn) action();
     else setAccount('signin');
@@ -74,8 +83,11 @@ function CampusApp() {
       else setComposer({});
     });
   const openPost = async (id: string) => {
+    // A slower response must not replace a newer selection or reopen a closed dialog.
+    const request = ++openPostRequest.current;
     if (API_MODE) {
-      if (await apiBoard.loadPost(id)) setSelectedId(id);
+      const loaded = await apiBoard.loadPost(id);
+      if (loaded && request === openPostRequest.current) setSelectedId(id);
       return;
     }
     if (board.posts.some((post) => post.id === id)) setSelectedId(id);
@@ -86,14 +98,16 @@ function CampusApp() {
     setFilters({ ...initialFilters, tag: value });
     navigate('/');
   };
+  const savedIds = new Set(board.savedIds);
+  const savedPosts = board.posts.filter((post) => savedIds.has(post.id));
   const visiblePosts =
     page === '/saved'
-      ? board.posts.filter((post) => board.savedIds.includes(post.id))
+      ? savedPosts
       : page === '/dashboard'
         ? board.posts.filter((post) => post.authorId === board.profile.id)
         : board.posts;
   const hasFeed = ['/', '/saved', '/dashboard'].includes(page);
-  const protectedPage = !board.signedIn && !['/', '/clubs', '/guide'].includes(page);
+  const protectedPage = !board.signedIn && !['/', '/clubs'].includes(page);
   const boardProps = {
     posts: visiblePosts,
     filters,
@@ -116,7 +130,7 @@ function CampusApp() {
       <Sidebar
         profile={board.profile}
         signedIn={board.signedIn}
-        savedCount={board.posts.filter((p) => board.savedIds.includes(p.id)).length}
+        savedCount={savedPosts.length}
         unreadCount={unreadCount}
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
@@ -130,6 +144,8 @@ function CampusApp() {
           <button
             className="icon-button mobile-menu"
             aria-label="Open navigation"
+            aria-expanded={mobileOpen}
+            aria-controls="campus-navigation"
             onClick={() => setMobileOpen(true)}
           >
             <Menu size={21} />
@@ -210,8 +226,7 @@ function CampusApp() {
             {API_MODE &&
               !apiBoard.loading &&
               !apiBoard.error &&
-              (!board.signedIn || apiBoard.membership?.status !== 'approved') &&
-              page !== '/guide' && (
+              (!board.signedIn || apiBoard.membership?.status !== 'approved') && (
                 <div className="inline-note">
                   <p>
                     {!board.signedIn
@@ -231,18 +246,15 @@ function CampusApp() {
             {API_MODE && apiBoard.feedLimited && hasFeed && (
               <p className="preview-note">
                 Showing the latest 100 posts and your saved posts. Filters apply to this loaded set.
-                The API supports paginated search for the full archive.
               </p>
             )}
             {page === '/' && <BoardPage {...boardProps} showFeature={!API_MODE} />}
             {protectedPage && (
               <div className="empty-state">
-                <h2>Your little corner is waiting.</h2>
-                <p>
-                  Sign in to the browser preview to explore your posts, saved items, and activity.
-                </p>
+                <h2>Sign in to continue.</h2>
+                <p>View your posts, saved items, and activity in one place.</p>
                 <button className="button primary" onClick={() => setAccount('signin')}>
-                  Sign in to preview
+                  Sign in
                 </button>
               </div>
             )}
@@ -262,9 +274,7 @@ function CampusApp() {
                   </div>
                   <div>
                     <span>SAVED FOR LATER</span>
-                    <strong>
-                      {board.posts.filter((p) => board.savedIds.includes(p.id)).length}
-                    </strong>
+                    <strong>{savedPosts.length}</strong>
                   </div>
                   <div>
                     <span>POST COMMENTS</span>
@@ -307,7 +317,6 @@ function CampusApp() {
               ) : (
                 <ModerationPage board={demoBoard} onOpen={openPost} />
               ))}
-            {page === '/guide' && <GuidePage apiMode={API_MODE} />}
           </main>
           {hasFeed && (
             <CampusAside
@@ -331,7 +340,7 @@ function CampusApp() {
             onClose={closeAccount}
             onUpdate={(profile) => {
               demoBoard.updateProfile(profile, account === 'signin');
-              setSelectedId(null);
+              closeDetail();
               setFilters(initialFilters);
             }}
             onSignOut={() => {
@@ -374,7 +383,7 @@ function CampusApp() {
           onUpdate={board.updatePost}
           onEdit={() => guarded(() => setComposer({ post: selected }))}
           onDelete={async () => {
-            if ((await board.remove(selected.id)) !== false) setSelectedId(null);
+            if ((await board.remove(selected.id)) !== false) closeDetail();
           }}
           onReport={() =>
             guarded(() => setReportTarget({ kind: 'post', id: selected.id, title: selected.title }))

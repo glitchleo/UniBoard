@@ -11,3 +11,6 @@ coverage/
 *.tsbuildinfo
 *.log
 .artifacts/
+
+# Keep personal learning documentation on this computer only.
+/docs/
